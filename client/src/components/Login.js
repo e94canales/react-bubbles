@@ -1,13 +1,66 @@
-import React from "react";
+import React, { useState } from "react";
+import { axiosWithAuth } from '../utils/axiosWithAuth'
+import { useHistory } from 'react-router-dom'
+
+const initialLoginValues = {
+  username: '',
+  password: '',
+}
 
 const Login = () => {
-  // make a post request to retrieve a token from the api
-  // when you have handled the token, navigate to the BubblePage route
+
+  const [ loginValues, setLoginValues ] = useState(initialLoginValues)
+  const { push } = useHistory()
+
+  const inputHandler = e =>{
+    const name = e.target.name
+    const value = e.target.value
+
+    setLoginValues({
+      ...loginValues,
+      [name]: value
+    })
+  }
+  const loginHandler = e => {
+    e.preventDefault()
+
+    axiosWithAuth()
+      .post('api/login', loginValues)
+      .then( res => {
+        // console.log(res.data)
+        localStorage.setItem('token', res.data.payload)
+        push('/bubbles')
+      })
+  }
+  
   return (
-    <>
-      <h1>Welcome to the Bubble App!</h1>
-      <p>Build a login page here</p>
-    </>
+    <div className='loginContainer'>
+
+      <form>
+          <legend>login</legend>
+          <label>
+            username: 
+            <input
+              name='username'
+              onChange={inputHandler}
+              value={loginValues.username}
+              type='text'
+            />
+          </label>
+          <label>
+            password: 
+            <input
+              name='password'
+              onChange={inputHandler}
+              value={loginValues.password}
+              type='password'
+            />
+          </label>
+          <div className="button-row">
+            <button onClick={loginHandler}>Login</button>
+          </div>
+      </form>
+    </div>
   );
 };
 
